@@ -1,15 +1,15 @@
 <form class="form-inline party-form" ng-submit="saveParty()">
   <div class="form-group">
     <label class="sr-only" for="partyName">Party Name</label>
-    <input ng-model="party.name" type="text" class="form-control" id="partyName" placeholder="Party Name">
+    <input ng-model="newParty.name" type="text" class="form-control" id="partyName" placeholder="Party Name">
   </div>
   <div class="form-group">
     <label class="sr-only" for="phoneNumber">Phone</label>
-    <input ng-model="party.phone" type="text" class="form-control" id="phoneNumber" placeholder="Phone Number">
+    <input ng-model="newParty.phone" type="text" class="form-control" id="phoneNumber" placeholder="Phone Number">
   </div>
   <div class="form-group">
     <label class="sr-only" for="partySize">Size of Party</label>
-    <input ng-model="party.size" type="text" class="form-control" id="partySize" placeholder="Size of Party">
+    <input ng-model="newParty.size" type="text" class="form-control" id="partySize" placeholder="Size of Party">
   </div>
   <button type="submit" class="btn btn-primary">Add Party</button>
 </form>
@@ -23,8 +23,8 @@
     </tr>
   </thead>
   <tbody>
-    <tr ng-repeat="party in parties">
-      <td><input type="checkbox"></td>
+    <tr ng-repeat="party in parties | orderByPriority">
+      <td><input type="checkbox" ng-model="party.done" ng-change="parties.$save(party.$id)"></td>
       <td>
         <div><strong>{{ party.name }} ({{ party.size }} people)</strong></div>
         <div>{{ party.phone }}</div>
@@ -36,8 +36,8 @@
         <!-- TODO: Add party.notified -->
       </td>
       <td>
-        <button type="submit" class="btn btn-success">Send SMS</button>
-        <button type="submit" class="btn btn-danger">Delete</button>
+        <button ng-click="sendSMS(party)" type="submit" class="btn btn-success">Send SMS</button>
+        <button ng-click="removeParty(party.$id)" type="submit" class="btn btn-danger">Delete</button>
       </td>
     </tr>
   </tbody>
