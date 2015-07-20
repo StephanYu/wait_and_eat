@@ -47,31 +47,22 @@ angular.module('myApp.controllers', [])
       $scope.parties.$save(party.$id);
     }
   }])
-  .controller('AuthenticationCtrl', ['$scope', '$firebaseSimpleLogin', '$location', 'FIREBASE_URL', function($scope, $firebaseSimpleLogin, $location, FIREBASE_URL) {
-    var authRef = new Firebase(FIREBASE_URL);
-    var auth = $firebaseSimpleLogin(authRef);
-
+  .controller('AuthenticationCtrl', ['$scope', 'authFactory', function($scope, authFactory) {
+    
     $scope.user = {
       email: '',
       password: ''
     };
 
     $scope.register = function() {
-      auth.$createUser($scope.user.email, $scope.user.password).then(function(data) {
-        console.log(data);
-        $scope.login();
-      })
+      authFactory.register($scope.user);
     };
 
     $scope.login = function() {
-      auth.$login('password', $scope.user).then(function(data) {
-        console.log(data);
-        $location.path('/waitlist');
-      });
+      authFactory.login($scope.user);
     };
 
     $scope.logout = function() {
-      auth.$logout();
-      $location.path('/');
+      authFactory.logout();
     };
   }]);
