@@ -19,5 +19,13 @@ config(['$routeProvider', function($routeProvider) {
     templateUrl: '/partials/waitlist.html',
     controller: 'WaitlistCtrl'
   });
+  $routeProvider.when('/register', {
+    templateUrl: '/partials/register.html',
+    controller: 'AuthenticationCtrl'
+  });
+  $routeProvider.when('/login', {
+    templateUrl: '/partials/login.html',
+    controller: 'AuthenticationCtrl'
+  });
   $routeProvider.otherwise({redirectTo: '/'});
 }]);

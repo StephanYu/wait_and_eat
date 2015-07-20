@@ -6,16 +6,17 @@ angular.module('myApp.controllers', [])
   .controller('LandingPageCtrl', [function() {
     
   }])
-  .controller('WaitlistCtrl', ['$scope', '$firebase', function($scope, $firebase) {
+  .controller('WaitlistCtrl', ['$scope', '$firebase', 'FIREBASE_URL', function($scope, $firebase, FIREBASE_URL) {
     
-    var partiesRef = new Firebase('https://waitandeat-syu.firebaseio.com/parties');
+    var partiesRef = new Firebase(FIREBASE_URL + 'parties');
     $scope.parties = $firebase(partiesRef);
     
     $scope.newParty = {
       name: '',
       phone: '',
       size: '',
-      done: false
+      done: false,
+      notified: 'No'
     };
 
     $scope.saveParty = function() {
@@ -24,7 +25,8 @@ angular.module('myApp.controllers', [])
         name: '',
         phone: '',
         size: '',
-        done: false
+        done: false,
+        notified: 'No'
       };
     }
 
@@ -33,7 +35,7 @@ angular.module('myApp.controllers', [])
     }
 
     $scope.sendSMS = function(party) {
-      var textMessagesRef = new Firebase('https://waitandeat-syu.firebaseio.com/textMessages')
+      var textMessagesRef = new Firebase(FIREBASE_URL + 'textMessages')
       var textMessages = $firebase(textMessagesRef);
       var newTextMessage = {
         phoneNumber: party.phone,
@@ -41,5 +43,35 @@ angular.module('myApp.controllers', [])
         name: party.name
       };
       textMessages.$add(newTextMessage);
+      party.notified = 'Yes';
+      $scope.parties.$save(party.$id);
     }
+  }])
+  .controller('AuthenticationCtrl', ['$scope', '$firebaseSimpleLogin', '$location', 'FIREBASE_URL', function($scope, $firebaseSimpleLogin, $location, FIREBASE_URL) {
+    var authRef = new Firebase(FIREBASE_URL);
+    var auth = $firebaseSimpleLogin(authRef);
+
+    $scope.user = {
+      email: '',
+      password: ''
+    };
+
+    $scope.register = function() {
+      auth.$createUser($scope.user.email, $scope.user.password).then(function(data) {
+        console.log(data);
+        $scope.login();
+      })
+    };
+
+    $scope.login = function() {
+      auth.$login('password', $scope.user).then(function(data) {
+        console.log(data);
+        $location.path('/waitlist');
+      });
+    };
+
+    $scope.logout = function() {
+      auth.$logout();
+      $location.path('/');
+    };
   }]);
