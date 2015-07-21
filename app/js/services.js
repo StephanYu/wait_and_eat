@@ -12,11 +12,13 @@ angular.module('myApp.services', []).
   })
   .factory('partyFactory', function(dataFactory) {
 
-    var parties = dataFactory.$child('parties');
+    var users = dataFactory.$child('users');
     var partyFactoryObject = {
-      parties: parties,
-      saveParty: function(party) {
-        parties.$add(party);
+      saveParty: function(party, userId) {
+        users.$child(userId).$child('parties').$add(party);
+      },
+      getPartiesByUserId: function(userId) {
+        return users.$child(userId).$child('parties');
       }
     };
     return partyFactoryObject;
@@ -24,7 +26,7 @@ angular.module('myApp.services', []).
   .factory('textMessageFactory', function(partyFactory, dataFactory) {
     
     var textMessageFactoryObject = {
-      sendSMS: function(party) {
+      sendSMS: function(party, userId) {
         var textMessages = dataFactory.$child('textMessages');
         var newTextMessage = {
           phoneNumber: party.phone,
@@ -32,8 +34,7 @@ angular.module('myApp.services', []).
           name: party.name
         };
         textMessages.$add(newTextMessage);
-        party.notified = 'Yes';
-        partyFactory.parties.$save(party.$id);
+        partyFactory.getPartiesByUserId(userId).$child(party.$id).$update({notified: "Yes"});
       }
     };
     return textMessageFactoryObject;
@@ -59,6 +60,9 @@ angular.module('myApp.services', []).
       logout: function() {
         auth.$logout();
         $location.path('/');
+      },
+      getCurrentUser: function() {
+        return auth.$getCurrentUser();
       }
     };
 

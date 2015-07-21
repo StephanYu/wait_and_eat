@@ -6,8 +6,12 @@ angular.module('myApp.controllers', [])
   .controller('LandingPageCtrl', [function() {
     
   }])
-  .controller('WaitlistCtrl', ['$scope', 'partyFactory', 'textMessageFactory', function($scope, partyFactory, textMessageFactory) {
-    $scope.parties = partyFactory.parties;
+  .controller('WaitlistCtrl', ['$scope', 'partyFactory', 'textMessageFactory', 'authFactory', function($scope, partyFactory, textMessageFactory, authFactory) {
+    authFactory.getCurrentUser().then(function(user) {
+      if (user) {
+        $scope.parties = partyFactory.getPartiesByUserId(user.id);
+      }
+    });
     $scope.newParty = {
       name: '',
       phone: '',
@@ -17,7 +21,7 @@ angular.module('myApp.controllers', [])
     };
 
     $scope.saveParty = function() {
-      partyFactory.saveParty($scope.newParty);
+      partyFactory.saveParty($scope.newParty, $scope.currentUser.id);
       $scope.newParty = {
         name: '',
         phone: '',
@@ -32,7 +36,7 @@ angular.module('myApp.controllers', [])
     }
 
     $scope.sendSMS = function(party) {
-      textMessageFactory.sendSMS(party);
+      textMessageFactory.sendSMS(party, $scope.currentUser.id);
     }
   }])
   .controller('AuthenticationCtrl', ['$scope', 'authFactory', function($scope, authFactory) {
