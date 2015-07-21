@@ -3,8 +3,20 @@
 /* Services */
 
 angular.module('myApp.services', []).
-  value('FIREBASE_URL', 'https://waitandeat-syu.firebaseio.com/').
-  factory('authFactory', function($firebaseSimpleLogin, $location, FIREBASE_URL) {
+  value('FIREBASE_URL', 'https://waitandeat-syu.firebaseio.com/')
+  .factory('partyFactory', function($firebase, FIREBASE_URL) {
+    var partiesRef = new Firebase(FIREBASE_URL + 'parties');
+    var parties = $firebase(partiesRef);
+
+    var partyFactoryObject = {
+      parties: parties,
+      saveParty: function(party) {
+        parties.$add(party);
+      }
+    };
+    return partyFactoryObject;
+  })
+  .factory('authFactory', function($firebaseSimpleLogin, $location, $rootScope, FIREBASE_URL) {
     var authRef = new Firebase(FIREBASE_URL);
     var auth = $firebaseSimpleLogin(authRef);
 
@@ -26,5 +38,12 @@ angular.module('myApp.services', []).
         $location.path('/');
       }
     };
+
+    $rootScope.$on('$firebaseSimpleLogin:login', function(e, user) {
+        $rootScope.currentUser = user;
+    });
+    $rootScope.$on('$firebaseSimpleLogin:logout', function() {
+        $rootScope.currentUser = null;
+    });
     return authFactoryObject;
   });
