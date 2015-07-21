@@ -16,6 +16,23 @@ angular.module('myApp.services', []).
     };
     return partyFactoryObject;
   })
+  .factory('textMessageFactory', function($firebase, FIREBASE_URL, partyFactory) {
+    var textMessageFactoryObject = {
+      sendSMS: function(party) {
+        var textMessagesRef = new Firebase(FIREBASE_URL + 'textMessages')
+        var textMessages = $firebase(textMessagesRef);
+        var newTextMessage = {
+          phoneNumber: party.phone,
+          size: party.size,
+          name: party.name
+        };
+        textMessages.$add(newTextMessage);
+        party.notified = 'Yes';
+        partyFactory.parties.$save(party.$id);
+      }
+    };
+    return textMessageFactoryObject;
+  })
   .factory('authFactory', function($firebaseSimpleLogin, $location, $rootScope, FIREBASE_URL) {
     var authRef = new Firebase(FIREBASE_URL);
     var auth = $firebaseSimpleLogin(authRef);
