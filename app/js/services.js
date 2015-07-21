@@ -4,10 +4,15 @@
 
 angular.module('myApp.services', []).
   value('FIREBASE_URL', 'https://waitandeat-syu.firebaseio.com/')
-  .factory('partyFactory', function($firebase, FIREBASE_URL) {
-    var partiesRef = new Firebase(FIREBASE_URL + 'parties');
-    var parties = $firebase(partiesRef);
+  .factory('dataFactory', function($firebase, FIREBASE_URL) {
+    
+    var dataRef = new Firebase(FIREBASE_URL);
+    var dataFire = $firebase(dataRef);
+    return dataFire;
+  })
+  .factory('partyFactory', function(dataFactory) {
 
+    var parties = dataFactory.$child('parties');
     var partyFactoryObject = {
       parties: parties,
       saveParty: function(party) {
@@ -16,11 +21,11 @@ angular.module('myApp.services', []).
     };
     return partyFactoryObject;
   })
-  .factory('textMessageFactory', function($firebase, FIREBASE_URL, partyFactory) {
+  .factory('textMessageFactory', function(partyFactory, dataFactory) {
+    
     var textMessageFactoryObject = {
       sendSMS: function(party) {
-        var textMessagesRef = new Firebase(FIREBASE_URL + 'textMessages')
-        var textMessages = $firebase(textMessagesRef);
+        var textMessages = dataFactory.$child('textMessages');
         var newTextMessage = {
           phoneNumber: party.phone,
           size: party.size,
@@ -34,6 +39,7 @@ angular.module('myApp.services', []).
     return textMessageFactoryObject;
   })
   .factory('authFactory', function($firebaseSimpleLogin, $location, $rootScope, FIREBASE_URL) {
+    
     var authRef = new Firebase(FIREBASE_URL);
     var auth = $firebaseSimpleLogin(authRef);
 
